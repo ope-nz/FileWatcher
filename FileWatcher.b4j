@@ -1,4 +1,4 @@
-﻿AppType=JavaFX
+?AppType=JavaFX
 Build1=Default,nz.op.filewatcher
 File1=favicon.png
 File2=layout1.bjl
@@ -76,13 +76,6 @@ Sub AppStart (Form1 As Form, Args() As String)
 	icon1.Initialize("icon1", LogoImage, MenuItems)
 	icon1.ToolTip = "Right click to show menu."
 	tray.AddTrayIcon(icon1)
-	
-	'MainForm = Form1
-	'MainForm.RootPane.LoadLayout("layout1") 'Load the layout file.
-	'MainForm.Show
-	'MainForm.Close
-	
-	'StartMessageLoop
 End Sub
 
 Sub Icon1_MenuClick (Text As String)
@@ -148,6 +141,7 @@ Sub PushChanges()
 	Cursor1 = DB.ExecQuery(SearchQuery)
 	
 	Dim auth_token As String = File.ReadString(File.DirApp,"auth_token.txt")
+	Dim repo_parent As String = File.ReadString(File.DirApp,"repo_parent_org_or_name.txt")
 	
 	Dim hub As githubapi
 	hub.Initialize2(auth_token)
@@ -171,7 +165,7 @@ Sub PushChanges()
 			Dim repo As GHRepository
 			repo.Initialize
 
-			repo = hub.getRepository("ope-nz/" & ProjectName)
+			repo = hub.getRepository(repo_parent & "/" & ProjectName)
 			
 			' If the repo isnt initialised then create it
 			If repo.IsInitialized = False Then
