@@ -1,0 +1,216 @@
+﻿AppType=JavaFX
+Build1=Default,nz.op.filewatcher
+File1=favicon.png
+File2=layout1.bjl
+FileGroup1=Default Group
+FileGroup2=Default Group
+Group=Default Group
+Library1=jcore
+Library2=jfilewatcher
+Library3=jsql
+Library4=jsystemtray
+Library5=jfx
+Library6=githubapi
+Library7=jcontrolsfx9
+Library8=javaobject
+NumberOfFiles=2
+NumberOfLibraries=8
+NumberOfModules=0
+Version=7.8
+@EndOfDesignText@
+'Non-UI application (console / server application)
+#Region Project Attributes 
+	#CommandLineArgs:
+	#MergeLibraries: True
+	#AdditionalJar: sqlite-jdbc-3.27.2.1
+#End Region
+
+Sub Process_Globals
+	Private fx As JFX
+	Private cutils As ControlsUtils
+	
+	Private MainForm As Form
+	
+	Dim f As FileWatcher	
+	Dim ignore_ext As List
+	Dim ignore_folder As List
+	
+	Dim DB As SQL
+	
+	Private tray As SystemTray
+	Private icon1 As TrayIcon
+	Private LogoImage As Image
+End Sub
+
+Sub AppStart (Form1 As Form, Args() As String)
+	LogoImage = fx.LoadImage(File.DirAssets, "favicon.png")
+	
+	DB.InitializeSQLite(File.DirApp,"ChangeLog.sqlite",True)
+	
+	DB.ExecNonQuery($"CREATE TABLE IF NOT EXISTS "Changes" (
+	"FileName" TEXT,
+	"FileDirectory" TEXT,
+	"ChangeType" TEXT,
+	"TimeStamp" INTEGER,
+	PRIMARY KEY("FileName","FileDirectory")
+	);"$)
+		
+	f.Initialize("fw")
+	
+	ignore_ext.Initialize	
+	ignore_ext = File.ReadList(File.DirApp,"ignore_ext.txt")
+	
+	ignore_folder.Initialize
+	ignore_folder = File.ReadList(File.DirApp,"ignore_folder.txt")
+	
+	Dim watch_folders As List
+	watch_folders.Initialize
+	watch_folders = File.ReadList(File.DirApp,"watch_folders.txt")
+	
+	f.SetWatchList(watch_folders)	
+		
+	f.StartWatching
+	
+	tray.Initialize
+	Dim MenuItems() As String = Array As String("Push Changes", "-", "Exit")
+	icon1.Initialize("icon1", LogoImage, MenuItems)
+	icon1.ToolTip = "Right click to show menu."
+	tray.AddTrayIcon(icon1)
+	
+	'MainForm = Form1
+	'MainForm.RootPane.LoadLayout("layout1") 'Load the layout file.
+	'MainForm.Show
+	'MainForm.Close
+	
+	'StartMessageLoop
+End Sub
+
+Sub Icon1_MenuClick (Text As String)
+	Select Text
+		Case "Push Changes"
+			PushChanges
+		Case "Exit"
+			DB.Close
+			ExitApplication
+	End Select
+End Sub
+
+Sub fw_ModificationDetected(FileName As String, FileDirectory As String)
+	Log(FileName)
+	Log(FileDirectory)
+	LogChange(FileName,FileDirectory,"Modify")
+End Sub
+
+Sub fw_CreationDetected(FileName As String, FileDirectory As String)
+	Log(FileName)
+	Log(FileDirectory)
+	LogChange(FileName,FileDirectory,"Create")
+End Sub
+
+Sub GetFileExt(FileName As String) As String
+	Dim idx As Int = FileName.LastIndexof(".")	
+	If idx = -1 Then Return ""	
+	Return(FileName.SubString2(idx, FileName.Length))
+End Sub
+
+Sub GetProjectName(FileDirectory As String) As String
+	Dim l As List = File.ListFiles(FileDirectory)
+	
+	For Each fl As String In l
+		If fl.EndsWith(".b4j") Then			
+			Return fl.Replace(".b4j","")
+		End If
+	Next
+	
+	Return ""
+End Sub
+
+Sub LogChange(FileName As String, FileDirectory As String, ChangeType As String) As Boolean
+	If ignore_folder.IndexOf(FileName) > -1 Then Return False
+	
+	If GetFileExt(FileName) = "" Then
+		'Its a folder so ignore
+		Return False
+	End If
+	
+	If ignore_ext.IndexOf(GetFileExt(FileName)) > -1 Then Return False
+		
+	DB.ExecNonQuery2("REPLACE into Changes (FileName,FileDirectory,ChangeType,TimeStamp) values (?,?,?,?)",Array As Object(FileName,FileDirectory,ChangeType,DateTime.Now))
+	
+	Return True
+End Sub
+
+Sub PushChanges()
+	Dim SearchQuery As String
+	SearchQuery = "select * from Changes order by FileDirectory,FileName,Timestamp"
+		
+	Dim Cursor1 As ResultSet
+	Cursor1 = DB.ExecQuery(SearchQuery)
+	
+	Dim auth_token As String = File.ReadString(File.DirApp,"auth_token.txt")
+	
+	Dim hub As githubapi
+	hub.Initialize2(auth_token)
+	
+	If hub.isCredentialValid = False Then
+		Dim jo As JavaObject = icon1
+		jo.RunMethod("displayMessage",Array As Object("Error", "Could not log into GitHub using auth token!", "ERROR"))
+		Return 
+	End If
+	
+	Do While Cursor1.NextRow
+		Dim FileName As String = Cursor1.GetString("FileName")
+		Dim FileDirectory As String = Cursor1.GetString("FileDirectory")
+		Dim ChangeType As String = Cursor1.GetString("ChangeType")		
+		
+		If File.Exists(FileDirectory,FileName) = False Then
+			Log("Oops file doesnt exist?")
+		Else		
+			Dim ProjectName As String = GetProjectName(FileDirectory)
+			
+			Dim repo As GHRepository
+			repo.Initialize
+
+			repo = hub.getRepository("ope-nz/" & ProjectName)
+			
+			' If the repo isnt initialised then create it
+			If repo.IsInitialized = False Then
+				repo = hub.createRepository(ProjectName,"","",False)
+			End If
+			
+			If repo.IsInitialized Then									
+				'Try and get the file
+				Dim c As GHContent
+				c = repo.getFileContent(FileName)			
+				
+				If c.IsInitialized = False Then
+					'File doesnt exist
+					If ChangeType <> "DELETE" Then
+						'Could be a create or update but file doesnt exist so creating anyway
+						repo.createContent(File.ReadString(FileDirectory,FileName),"Initial Commit",FileName)
+					Else
+						'Well file doesnt exist on GitHub so ignoring
+						Log("Ignoring delete as file doesnt exist")
+					End If
+				Else
+					'File exists
+					If ChangeType = "DELETE" Then
+						Log("Deleting "&FileName)				
+						c.delete("Deleted")
+					Else
+						Log("Updating "&FileName)
+						c.update(File.ReadString(FileDirectory,FileName),"Update")
+					End If
+				End If
+			End If
+		End If
+	Loop
+	
+	Cursor1.Close
+	
+	DB.ExecNonQuery("delete from Changes")
+	
+	Dim jo As JavaObject = icon1
+	jo.RunMethod("displayMessage",Array As Object("Success", "Changes pushed successfully", "INFO"))
+	Return
+End Sub
