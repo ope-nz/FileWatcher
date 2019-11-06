@@ -9,10 +9,9 @@ Library3=jsql
 Library4=jsystemtray
 Library5=jfx
 Library6=githubapi
-Library7=jcontrolsfx9
-Library8=javaobject
+Library7=javaobject
 NumberOfFiles=1
-NumberOfLibraries=8
+NumberOfLibraries=7
 NumberOfModules=0
 Version=7.8
 @EndOfDesignText@
@@ -21,13 +20,14 @@ Version=7.8
 	#CommandLineArgs:
 	#MergeLibraries: True
 	#AdditionalJar: sqlite-jdbc-3.27.2.1
+	
+	#if RELEASE		
+		#CustomBuildAction: 2, C:\Apps\B4J\Tools\CompileOnly\compileonly.bat,		
+	#end if	
 #End Region
 
 Sub Process_Globals
 	Private fx As JFX
-	Private cutils As ControlsUtils
-	
-	Private MainForm As Form
 	
 	Dim f As FileWatcher	
 	Dim ignore_ext As List
@@ -58,12 +58,18 @@ Sub AppStart (Form1 As Form, Args() As String)
 	ignore_ext.Initialize	
 	ignore_ext = File.ReadList(File.DirApp,"ignore_ext.txt")
 	
+	Log(ignore_ext)
+	
 	ignore_folder.Initialize
 	ignore_folder = File.ReadList(File.DirApp,"ignore_folder.txt")
+	
+	Log(ignore_folder)
 	
 	Dim watch_folders As List
 	watch_folders.Initialize
 	watch_folders = File.ReadList(File.DirApp,"watch_folders.txt")
+	
+	Log(watch_folders)
 	
 	f.SetWatchList(watch_folders)	
 		
@@ -125,6 +131,8 @@ Sub LogChange(FileName As String, FileDirectory As String, ChangeType As String)
 	End If
 	
 	If ignore_ext.IndexOf(GetFileExt(FileName)) > -1 Then Return False
+		
+	Log(ChangeType & ": " & FileDirectory & "\" & FileName)
 		
 	DB.ExecNonQuery2("REPLACE into Changes (FileName,FileDirectory,ChangeType,TimeStamp) values (?,?,?,?)",Array As Object(FileName,FileDirectory,ChangeType,DateTime.Now))
 	
