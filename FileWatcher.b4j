@@ -203,6 +203,6 @@ Sub PushChanges()
 	DB.ExecNonQuery("delete from Changes")
 	
 	Dim jo As JavaObject = icon1
-	jo.RunMethod("displayMessage",Array As Object("Success", "Changes pushed successfully", "INFO"))
+	jo.RunMethod("displayMessage",Array As Object("Success", "Changes pushed successfully", "NONE"))
 	Return
 End Sub
