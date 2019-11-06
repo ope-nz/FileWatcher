@@ -78,7 +78,7 @@ Sub AppStart (Form1 As Form, Args() As String)
 	tray.Initialize
 	Dim MenuItems() As String = Array As String("Push Changes", "-", "Exit")
 	icon1.Initialize("icon1", LogoImage, MenuItems)
-	icon1.ToolTip = "Right click to show menu."
+	icon1.ToolTip = "Changes in queue: " & GetChangeCount
 	tray.AddTrayIcon(icon1)
 End Sub
 
@@ -110,6 +110,12 @@ Sub GetFileExt(FileName As String) As String
 	Return(FileName.SubString2(idx, FileName.Length))
 End Sub
 
+Sub GetChangeCount() As Int
+	Dim result As Int = DB.ExecQuerySingleResult("select count(*) from Changes")
+	
+	Return result
+End Sub
+
 Sub GetProjectName(FileDirectory As String) As String
 	Dim l As List = File.ListFiles(FileDirectory)
 	
@@ -135,6 +141,8 @@ Sub LogChange(FileName As String, FileDirectory As String, ChangeType As String)
 	Log(ChangeType & ": " & FileDirectory & "\" & FileName)
 		
 	DB.ExecNonQuery2("REPLACE into Changes (FileName,FileDirectory,ChangeType,TimeStamp) values (?,?,?,?)",Array As Object(FileName,FileDirectory,ChangeType,DateTime.Now))
+	
+	icon1.ToolTip = "Changes in queue: " & GetChangeCount
 	
 	Return True
 End Sub
