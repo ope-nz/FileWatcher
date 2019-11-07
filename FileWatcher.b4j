@@ -10,8 +10,9 @@ Library4=jsystemtray
 Library5=jfx
 Library6=githubapi
 Library7=javaobject
+Library8=json
 NumberOfFiles=1
-NumberOfLibraries=7
+NumberOfLibraries=8
 NumberOfModules=0
 Version=7.8
 @EndOfDesignText@
@@ -29,9 +30,13 @@ Version=7.8
 Sub Process_Globals
 	Private fx As JFX
 	
-	Dim f As FileWatcher	
+	Dim f As FileWatcher
+	
 	Dim ignore_ext As List
-	Dim ignore_folder As List
+	Dim ignore_folders As List
+	
+	Dim api_token As String
+	Dim user_or_org_name As String
 	
 	Dim DB As SQL
 	
@@ -55,21 +60,38 @@ Sub AppStart (Form1 As Form, Args() As String)
 		
 	f.Initialize("fw")
 	
-	ignore_ext.Initialize	
-	ignore_ext = File.ReadList(File.DirApp,"ignore_ext.txt")
+	Dim config As String = File.ReadString(File.DirApp,"config.json")
+	
+	Dim parser As JSONParser
+	parser.Initialize(config)
+	
+	Dim root As Map = parser.NextObject
+	ignore_folders = root.Get("ignore_folders")
+	ignore_ext = root.Get("ignore_ext")
+	
+	Dim github As Map = root.Get("github")
+	user_or_org_name = github.Get("user_or_org_name")
+	api_token = github.Get("api_token")
+	
+	Dim watch_folders As List = root.Get("watch_folders")
+	
+	'ignore_ext.Initialize	
+	'ignore_ext = File.ReadList(File.DirApp,"ignore_ext.txt")
+	
+	
+	
+	'ignore_folders.Initialize
+	'ignore_folders = File.ReadList(File.DirApp,"ignore_folder.txt")
+	
+	'Dim watch_folders As List
+	'watch_folders.Initialize
+	'watch_folders = File.ReadList(File.DirApp,"watch_folders.txt")
 	
 	Log(ignore_ext)
-	
-	ignore_folder.Initialize
-	ignore_folder = File.ReadList(File.DirApp,"ignore_folder.txt")
-	
-	Log(ignore_folder)
-	
-	Dim watch_folders As List
-	watch_folders.Initialize
-	watch_folders = File.ReadList(File.DirApp,"watch_folders.txt")
-	
+	Log(ignore_folders)
 	Log(watch_folders)
+	Log(api_token)
+	Log(user_or_org_name)	
 	
 	f.SetWatchList(watch_folders)	
 		
@@ -125,11 +147,20 @@ Sub GetProjectName(FileDirectory As String) As String
 		End If
 	Next
 	
+	If FileDirectory.Contains("src") Then
+		Dim i1 As Int = FileDirectory.IndexOf("src")		
+		Dim projectname As String = FileDirectory.SubString2(0,i1-1)
+		
+		Dim i2 As Int = projectname.LastIndexOf("\")
+		
+		Return projectname.SubString(i2)
+	End If
+	
 	Return ""
 End Sub
 
 Sub LogChange(FileName As String, FileDirectory As String, ChangeType As String) As Boolean
-	If ignore_folder.IndexOf(FileName) > -1 Then Return False
+	If ignore_folders.IndexOf(FileName) > -1 Then Return False
 	
 	If GetFileExt(FileName) = "" Then
 		'Its a folder so ignore
@@ -154,11 +185,11 @@ Sub PushChanges()
 	Dim Cursor1 As ResultSet
 	Cursor1 = DB.ExecQuery(SearchQuery)
 	
-	Dim auth_token As String = File.ReadString(File.DirApp,"auth_token.txt")
-	Dim repo_parent As String = File.ReadString(File.DirApp,"repo_parent_org_or_name.txt")
+	'Dim auth_token As String = File.ReadString(File.DirApp,"auth_token.txt")
+	'Dim repo_parent As String = File.ReadString(File.DirApp,"repo_parent_org_or_name.txt")
 	
 	Dim hub As githubapi
-	hub.Initialize2(auth_token)
+	hub.Initialize2(api_token)
 	
 	If hub.isCredentialValid = False Then
 		Dim jo As JavaObject = icon1
@@ -179,7 +210,7 @@ Sub PushChanges()
 			Dim repo As GHRepository
 			repo.Initialize
 
-			repo = hub.getRepository(repo_parent & "/" & ProjectName)
+			repo = hub.getRepository(user_or_org_name & "/" & ProjectName)
 			
 			' If the repo isnt initialised then create it
 			If repo.IsInitialized = False Then
