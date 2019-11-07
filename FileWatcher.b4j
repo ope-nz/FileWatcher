@@ -218,6 +218,8 @@ Sub PushChanges()
 	
 	DB.ExecNonQuery("delete from Changes")
 	
+	icon1.ToolTip = "Changes in queue: " & GetChangeCount
+	
 	Dim jo As JavaObject = icon1
 	jo.RunMethod("displayMessage",Array As Object("Success", "Changes pushed successfully", "NONE"))
 	Return
