@@ -151,9 +151,11 @@ Sub GetProjectName(FileDirectory As String) As String
 		Dim i1 As Int = FileDirectory.IndexOf("src")		
 		Dim projectname As String = FileDirectory.SubString2(0,i1-1)
 		
-		Dim i2 As Int = projectname.LastIndexOf("\")
+		Dim i2 As Int = projectname.LastIndexOf("\")+1
 		
-		Return projectname.SubString(i2)
+		projectname = projectname.SubString(i2)
+		
+		Return projectname
 	End If
 	
 	Return ""
