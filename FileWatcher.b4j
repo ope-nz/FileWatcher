@@ -23,6 +23,8 @@ Version=7.8
 	#MergeLibraries: True
 	#AdditionalJar: sqlite-jdbc-3.27.2.1
 	
+	#VirtualMachineArgs: -DproxySet=true -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=8888
+	
 	#if RELEASE		
 		#CustomBuildAction: 2, C:\Apps\B4J\Tools\CompileOnly\compileonly.bat,		
 	#end if	
@@ -46,7 +48,7 @@ Sub Process_Globals
 	Private icon1 As TrayIcon
 	Private LogoImage As Image
 	
-	Dim j as jUtilities
+	Dim j As jUtilities
 End Sub
 
 Sub AppStart (Form1 As Form, Args() As String)
