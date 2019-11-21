@@ -234,7 +234,7 @@ Sub PushChanges()
 			If repo.IsInitialized Then									
 				'Try and get the file			
 				Dim c As GHContent
-				c = repo.getFileContent(FileName)			
+				c = repo.getFileContent(SafeFileName)
 				
 				If c.IsInitialized = False Then
 					'File doesnt exist
@@ -260,7 +260,7 @@ Sub PushChanges()
 						If File.Exists(FileDirectory,FileName) = False Then
 							Log("File doesnt exist on file system?")
 						Else
-							c.update(File.ReadString(FileDirectory,SafeFileName),"Update")
+							c.update(File.ReadString(FileDirectory,FileName),"Update")
 						End If
 					End If
 				End If
