@@ -211,7 +211,9 @@ Sub PushChanges()
 		Try
 			Dim FileName As String = Cursor1.GetString("FileName")
 			Dim FileDirectory As String = Cursor1.GetString("FileDirectory")
-			Dim ChangeType As String = Cursor1.GetString("ChangeType")		
+			Dim ChangeType As String = Cursor1.GetString("ChangeType")
+			
+			Dim SafeFileName as string = FileName.Replace(" ","%20")
 					
 			Dim ProjectName As String = GetProjectName(FileDirectory)
 			
@@ -242,7 +244,7 @@ Sub PushChanges()
 							Log("File doesnt exist on file system?")
 						Else
 							'Could be a create or update but file doesnt exist so creating anyway
-							repo.createContent(j.EncodeUrl(File.ReadString(FileDirectory,FileName),"UTF-8"),"Initial Commit",FileName.Replace(" ","%20"))
+							repo.createContent(j.EncodeUrl(File.ReadString(FileDirectory,FileName),"UTF-8"),"Initial Commit",SafeFileName)
 						End If
 					Else
 						'Well file doesnt exist on GitHub so ignoring
@@ -258,7 +260,7 @@ Sub PushChanges()
 						If File.Exists(FileDirectory,FileName) = False Then
 							Log("File doesnt exist on file system?")
 						Else
-							c.update(File.ReadString(FileDirectory,FileName),"Update")
+							c.update(File.ReadString(FileDirectory,SafeFileName),"Update")
 						End If
 					End If
 				End If
