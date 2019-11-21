@@ -23,7 +23,7 @@ Version=7.8
 	#MergeLibraries: True
 	#AdditionalJar: sqlite-jdbc-3.27.2.1
 	
-	#VirtualMachineArgs: -DproxySet=true -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=8888
+	'#VirtualMachineArgs: -DproxySet=true -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=8888
 	
 	#if RELEASE		
 		#CustomBuildAction: 2, C:\Apps\B4J\Tools\CompileOnly\compileonly.bat,		
@@ -202,6 +202,7 @@ Sub PushChanges()
 	End If
 	
 	Do While Cursor1.NextRow
+		Try
 		Dim FileName As String = Cursor1.GetString("FileName")
 		Dim FileDirectory As String = Cursor1.GetString("FileDirectory")
 		Dim ChangeType As String = Cursor1.GetString("ChangeType")		
@@ -251,6 +252,9 @@ Sub PushChanges()
 				End If
 			End If
 		End If
+		Catch
+			Log("Error occured")
+		End Try
 	Loop
 	
 	Cursor1.Close
