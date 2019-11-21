@@ -112,19 +112,19 @@ End Sub
 Sub fw_ModificationDetected(FileName As String, FileDirectory As String)
 	Log(FileName)
 	Log(FileDirectory)
-	LogChange(FileName,FileDirectory,"Modify")
+	LogChange(FileName,FileDirectory,"MODIFY")
 End Sub
 
 Sub fw_CreationDetected(FileName As String, FileDirectory As String)
 	Log(FileName)
 	Log(FileDirectory)
-	LogChange(FileName,FileDirectory,"Create")
+	LogChange(FileName,FileDirectory,"CREATE")
 End Sub
 
 Sub fw_DeletionDetected(FileName As String, FileDirectory As String)
 	Log(FileName)
 	Log(FileDirectory)
-	LogChange(FileName,FileDirectory,"Delete")
+	LogChange(FileName,FileDirectory,"DELETE")
 End Sub
 
 Sub GetFileExt(FileName As String) As String
