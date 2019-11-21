@@ -235,7 +235,7 @@ Sub PushChanges()
 					'File doesnt exist
 					If ChangeType <> "DELETE" Then
 						'Could be a create or update but file doesnt exist so creating anyway
-							repo.createContent(j.EncodeUrl(File.ReadString(FileDirectory,FileName),"UTF-8"),"Initial Commit",FileName)
+							repo.createContent(j.EncodeUrl(File.ReadString(FileDirectory,FileName),"UTF-8"),"Initial Commit",FileName.Replace(" ","%20"))
 					Else
 						'Well file doesnt exist on GitHub so ignoring
 						Log("Ignoring delete as file doesnt exist")
