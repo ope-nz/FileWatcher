@@ -215,6 +215,8 @@ Sub PushChanges()
 					
 			Dim ProjectName As String = GetProjectName(FileDirectory)
 			
+			Log("-----------------------")
+			Log(FileName)
 			Log(ProjectName)
 			
 			Dim repo As GHRepository
