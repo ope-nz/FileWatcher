@@ -231,7 +231,7 @@ Sub PushChanges()
 				repo = hub.createRepository(ProjectName,"","",False)
 			End If
 			
-			If repo.IsInitialized Then									
+			If repo.IsInitialized = True Then									
 				'Try and get the file			
 				Dim c As GHContent
 				c = repo.getFileContent(SafeFileName)
