@@ -1,4 +1,4 @@
-?AppType=JavaFX
+﻿AppType=JavaFX
 Build1=Default,nz.op.filewatcher
 File1=favicon.png
 FileGroup1=Default Group
@@ -11,8 +11,9 @@ Library5=jfx
 Library6=githubapi
 Library7=javaobject
 Library8=json
+Library9=jutilities
 NumberOfFiles=1
-NumberOfLibraries=8
+NumberOfLibraries=9
 NumberOfModules=0
 Version=7.8
 @EndOfDesignText@
@@ -44,6 +45,8 @@ Sub Process_Globals
 	Private tray As SystemTray
 	Private icon1 As TrayIcon
 	Private LogoImage As Image
+	
+	Dim j as jUtilities
 End Sub
 
 Sub AppStart (Form1 As Form, Args() As String)
@@ -206,6 +209,8 @@ Sub PushChanges()
 		Else		
 			Dim ProjectName As String = GetProjectName(FileDirectory)
 			
+			Log(ProjectName)
+			
 			Dim repo As GHRepository
 			repo.Initialize
 
@@ -215,6 +220,8 @@ Sub PushChanges()
 			If repo.IsInitialized = False Then
 				repo = hub.createRepository(ProjectName,"","",False)
 			End If
+			
+			FileName = j.EncodeUrl(FileName,"UTF-8")
 			
 			If repo.IsInitialized Then									
 				'Try and get the file
