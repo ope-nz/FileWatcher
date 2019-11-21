@@ -253,7 +253,7 @@ Sub PushChanges()
 			End If
 		End If
 		Catch
-			Log("Error occured")
+			Log("Error occured with file " & FileName)
 		End Try
 	Loop
 	
