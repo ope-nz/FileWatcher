@@ -121,6 +121,12 @@ Sub fw_CreationDetected(FileName As String, FileDirectory As String)
 	LogChange(FileName,FileDirectory,"Create")
 End Sub
 
+Sub fw_DeletionDetected(FileName As String, FileDirectory As String)
+	Log(FileName)
+	Log(FileDirectory)
+	LogChange(FileName,FileDirectory,"Delete")
+End Sub
+
 Sub GetFileExt(FileName As String) As String
 	Dim idx As Int = FileName.LastIndexof(".")	
 	If idx = -1 Then Return ""	
