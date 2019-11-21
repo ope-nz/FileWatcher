@@ -150,6 +150,7 @@ Sub GetProjectName(FileDirectory As String) As String
 	
 	If File.Exists(FileDirectory,"git-repo-name.txt") Then
 		projectname = File.ReadString(FileDirectory,"git-repo-name.txt")
+		Return projectname
 	End If
 	
 	Return ""
