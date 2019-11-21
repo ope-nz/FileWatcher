@@ -203,13 +203,10 @@ Sub PushChanges()
 	
 	Do While Cursor1.NextRow
 		Try
-		Dim FileName As String = Cursor1.GetString("FileName")
-		Dim FileDirectory As String = Cursor1.GetString("FileDirectory")
-		Dim ChangeType As String = Cursor1.GetString("ChangeType")		
-		
-		If File.Exists(FileDirectory,FileName) = False Then
-			Log("Oops file doesnt exist?")
-		Else		
+			Dim FileName As String = Cursor1.GetString("FileName")
+			Dim FileDirectory As String = Cursor1.GetString("FileDirectory")
+			Dim ChangeType As String = Cursor1.GetString("ChangeType")		
+					
 			Dim ProjectName As String = GetProjectName(FileDirectory)
 			
 			Log(ProjectName)
@@ -224,18 +221,21 @@ Sub PushChanges()
 				repo = hub.createRepository(ProjectName,"","",False)
 			End If
 			
-			'FileName = j.EncodeUrl(FileName,"UTF-8")
-			
 			If repo.IsInitialized Then									
-				'Try and get the file
+				'Try and get the file			
 				Dim c As GHContent
 				c = repo.getFileContent(FileName)			
 				
 				If c.IsInitialized = False Then
 					'File doesnt exist
 					If ChangeType <> "DELETE" Then
-						'Could be a create or update but file doesnt exist so creating anyway
+						Log("Creating GITHUB "&FileName)
+						If File.Exists(FileDirectory,FileName) = False Then
+							Log("File doesnt exist on file system?")
+						Else
+							'Could be a create or update but file doesnt exist so creating anyway
 							repo.createContent(j.EncodeUrl(File.ReadString(FileDirectory,FileName),"UTF-8"),"Initial Commit",FileName.Replace(" ","%20"))
+						End If
 					Else
 						'Well file doesnt exist on GitHub so ignoring
 						Log("Ignoring delete as file doesnt exist")
@@ -243,15 +243,19 @@ Sub PushChanges()
 				Else
 					'File exists
 					If ChangeType = "DELETE" Then
-						Log("Deleting "&FileName)				
+						Log("Deleting GITHUB "&FileName)
 						c.delete("Deleted")
 					Else
-						Log("Updating "&FileName)
-						c.update(File.ReadString(FileDirectory,FileName),"Update")
+						Log("Updating GITHUB "&FileName)
+						If File.Exists(FileDirectory,FileName) = False Then
+							Log("File doesnt exist on file system?")
+						Else
+							c.update(File.ReadString(FileDirectory,FileName),"Update")
+						End If
 					End If
 				End If
 			End If
-		End If
+
 		Catch
 			Log("Error occured with file " & FileName)
 		End Try
