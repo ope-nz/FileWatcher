@@ -213,12 +213,13 @@ Sub PushChanges()
 			Dim FileDirectory As String = Cursor1.GetString("FileDirectory")
 			Dim ChangeType As String = Cursor1.GetString("ChangeType")
 			
-			Dim SafeFileName as string = FileName.Replace(" ","%20")
+			Dim SafeFileName As String = FileName.Replace(" ","%20")
 					
 			Dim ProjectName As String = GetProjectName(FileDirectory)
 			
 			Log("-----------------------")
 			Log(FileName)
+			Log(SafeFileName)
 			Log(ProjectName)
 			
 			Dim repo As GHRepository
