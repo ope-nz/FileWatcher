@@ -56,6 +56,7 @@ Sub AppStart (Form1 As Form, Args() As String)
 	&#39;SetSystemProperty(&quot;http.proxyPort&quot;, 8888 )
 	&#39;SetSystemProperty(&quot;https.proxyHost&quot;, &quot;127.0.0.1&quot;)
 	&#39;SetSystemProperty(&quot;https.proxyPort&quot;, 8888 )
+	&#39;SetSystemProperty(&quot;java.net.useSystemProxies&quot;, &quot;True&quot;)
 	
 	LogoImage = fx.LoadImage(File.DirAssets, &quot;favicon.png&quot;)
 	
@@ -269,9 +270,14 @@ Sub PushChanges()
 						If File.Exists(FileDirectory,FileName) = False Then
 							Log(&quot;File doesnt exist on file system?&quot;)
 						Else
-							Dim SafeFileContent As String = $&quot;$xml{File.ReadString(FileDirectory,FileName)}&quot;$
-							Log(SafeFileContent)						
+							Log(c.Name)
+							Log(c.Sha)
+							Log(c.Size)
+							
+							Dim SafeFileContent As String = $&quot;$xml{File.ReadString(FileDirectory,FileName)}&quot;$	
+							
 							c.update(SafeFileContent,&quot;Update&quot;)
+							
 						End If
 					End If
 				End If
