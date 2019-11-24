@@ -23,7 +23,7 @@ Version=7.98
 	#MergeLibraries: True
 	#AdditionalJar: sqlite-jdbc-3.27.2.1
 	
-	&#39;#VirtualMachineArgs: -DproxySet=true -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=8888
+	&#39;#VirtualMachineArgs: -DproxySet=true -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=8888 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=8888
 	
 	#if RELEASE		
 		#CustomBuildAction: 2, C:\Apps\B4J\Tools\CompileOnly\compileonly.bat,		
@@ -52,6 +52,11 @@ Sub Process_Globals
 End Sub
 
 Sub AppStart (Form1 As Form, Args() As String)
+	&#39;SetSystemProperty(&quot;http.proxyHost&quot;, &quot;127.0.0.1&quot;)
+	&#39;SetSystemProperty(&quot;http.proxyPort&quot;, 8888 )
+	&#39;SetSystemProperty(&quot;https.proxyHost&quot;, &quot;127.0.0.1&quot;)
+	&#39;SetSystemProperty(&quot;https.proxyPort&quot;, 8888 )
+	
 	LogoImage = fx.LoadImage(File.DirAssets, &quot;favicon.png&quot;)
 	
 	DB.InitializeSQLite(File.DirApp,&quot;ChangeLog.sqlite&quot;,True)
