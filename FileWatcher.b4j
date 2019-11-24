@@ -15,15 +15,15 @@ Library9=jutilities
 NumberOfFiles=1
 NumberOfLibraries=9
 NumberOfModules=0
-Version=7.8
+Version=7.98
 @EndOfDesignText@
-'Non-UI application (console / server application)
+&#39;Non-UI application (console / server application)
 #Region Project Attributes 
 	#CommandLineArgs:
 	#MergeLibraries: True
 	#AdditionalJar: sqlite-jdbc-3.27.2.1
 	
-	'#VirtualMachineArgs: -DproxySet=true -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=8888
+	&#39;#VirtualMachineArgs: -DproxySet=true -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=8888
 	
 	#if RELEASE		
 		#CustomBuildAction: 2, C:\Apps\B4J\Tools\CompileOnly\compileonly.bat,		
@@ -48,39 +48,39 @@ Sub Process_Globals
 	Private icon1 As TrayIcon
 	Private LogoImage As Image
 	
-	Dim j As jUtilities
+	&#39;Dim j As jUtilities
 End Sub
 
 Sub AppStart (Form1 As Form, Args() As String)
-	LogoImage = fx.LoadImage(File.DirAssets, "favicon.png")
+	LogoImage = fx.LoadImage(File.DirAssets, &quot;favicon.png&quot;)
 	
-	DB.InitializeSQLite(File.DirApp,"ChangeLog.sqlite",True)
+	DB.InitializeSQLite(File.DirApp,&quot;ChangeLog.sqlite&quot;,True)
 	
-	DB.ExecNonQuery($"CREATE TABLE IF NOT EXISTS "Changes" (
-	"FileName" TEXT,
-	"FileDirectory" TEXT,
-	"ChangeType" TEXT,
-	"TimeStamp" INTEGER,
-	PRIMARY KEY("FileName","FileDirectory")
-	);"$)
+	DB.ExecNonQuery($&quot;CREATE TABLE IF NOT EXISTS &quot;Changes&quot; (
+	&quot;FileName&quot; TEXT,
+	&quot;FileDirectory&quot; TEXT,
+	&quot;ChangeType&quot; TEXT,
+	&quot;TimeStamp&quot; INTEGER,
+	PRIMARY KEY(&quot;FileName&quot;,&quot;FileDirectory&quot;)
+	);&quot;$)
 		
-	f.Initialize("fw")
+	f.Initialize(&quot;fw&quot;)
 	
-	Dim config As String = File.ReadString(File.DirApp,"config.json")
+	Dim config As String = File.ReadString(File.DirApp,&quot;config.json&quot;)
 	
 	Dim parser As JSONParser
 	parser.Initialize(config)
 	
 	Dim root As Map = parser.NextObject
-	ignore_folders = root.Get("ignore_folders")
-	ignore_files = root.Get("ignore_files")
-	ignore_ext = root.Get("ignore_ext")
+	ignore_folders = root.Get(&quot;ignore_folders&quot;)
+	ignore_files = root.Get(&quot;ignore_files&quot;)
+	ignore_ext = root.Get(&quot;ignore_ext&quot;)
 	
-	Dim github As Map = root.Get("github")
-	user_or_org_name = github.Get("user_or_org_name")
-	api_token = github.Get("api_token")
+	Dim github As Map = root.Get(&quot;github&quot;)
+	user_or_org_name = github.Get(&quot;user_or_org_name&quot;)
+	api_token = github.Get(&quot;api_token&quot;)
 	
-	Dim watch_folders As List = root.Get("watch_folders")
+	Dim watch_folders As List = root.Get(&quot;watch_folders&quot;)
 	
 	Log(ignore_ext)
 	Log(ignore_folders)
@@ -93,17 +93,17 @@ Sub AppStart (Form1 As Form, Args() As String)
 	f.StartWatching
 	
 	tray.Initialize
-	Dim MenuItems() As String = Array As String("Push Changes", "-", "Exit")
-	icon1.Initialize("icon1", LogoImage, MenuItems)
-	icon1.ToolTip = "Changes in queue: " & GetChangeCount
+	Dim MenuItems() As String = Array As String(&quot;Push Changes&quot;, &quot;-&quot;, &quot;Exit&quot;)
+	icon1.Initialize(&quot;icon1&quot;, LogoImage, MenuItems)
+	icon1.ToolTip = &quot;Changes in queue: &quot; &amp; GetChangeCount
 	tray.AddTrayIcon(icon1)
 End Sub
 
 Sub Icon1_MenuClick (Text As String)
 	Select Text
-		Case "Push Changes"
+		Case &quot;Push Changes&quot;
 			PushChanges
-		Case "Exit"
+		Case &quot;Exit&quot;
 			DB.Close
 			ExitApplication
 	End Select
@@ -112,29 +112,29 @@ End Sub
 Sub fw_ModificationDetected(FileName As String, FileDirectory As String)
 	Log(FileName)
 	Log(FileDirectory)
-	LogChange(FileName,FileDirectory,"MODIFY")
+	LogChange(FileName,FileDirectory,&quot;MODIFY&quot;)
 End Sub
 
 Sub fw_CreationDetected(FileName As String, FileDirectory As String)
 	Log(FileName)
 	Log(FileDirectory)
-	LogChange(FileName,FileDirectory,"CREATE")
+	LogChange(FileName,FileDirectory,&quot;CREATE&quot;)
 End Sub
 
 Sub fw_DeletionDetected(FileName As String, FileDirectory As String)
 	Log(FileName)
 	Log(FileDirectory)
-	LogChange(FileName,FileDirectory,"DELETE")
+	LogChange(FileName,FileDirectory,&quot;DELETE&quot;)
 End Sub
 
 Sub GetFileExt(FileName As String) As String
-	Dim idx As Int = FileName.LastIndexof(".")	
-	If idx = -1 Then Return ""	
+	Dim idx As Int = FileName.LastIndexof(&quot;.&quot;)	
+	If idx = -1 Then Return &quot;&quot;	
 	Return(FileName.SubString2(idx, FileName.Length))
 End Sub
 
 Sub GetChangeCount() As Int
-	Dim result As Int = DB.ExecQuerySingleResult("select count(*) from Changes")
+	Dim result As Int = DB.ExecQuerySingleResult(&quot;select count(*) from Changes&quot;)
 	
 	Return result
 End Sub
@@ -143,81 +143,81 @@ Sub GetProjectName(FileDirectory As String) As String
 	Dim l As List = File.ListFiles(FileDirectory)
 	
 	For Each fl As String In l
-		If fl.EndsWith(".b4j") Then			
-			Return fl.Replace(".b4j","")
+		If fl.EndsWith(&quot;.b4j&quot;) Then			
+			Return fl.Replace(&quot;.b4j&quot;,&quot;&quot;)
 		End If
 	Next
 	
-	If FileDirectory.Contains("src") Then
-		Dim i1 As Int = FileDirectory.IndexOf("src")		
+	If FileDirectory.Contains(&quot;src&quot;) Then
+		Dim i1 As Int = FileDirectory.IndexOf(&quot;src&quot;)		
 		Dim projectname As String = FileDirectory.SubString2(0,i1-1)
 		
-		Dim i2 As Int = projectname.LastIndexOf("\")+1
+		Dim i2 As Int = projectname.LastIndexOf(&quot;\&quot;)+1
 		
 		projectname = projectname.SubString(i2)
 		
 		Return projectname
 	End If
 	
-	If File.Exists(FileDirectory,"git-repo-name.txt") Then
-		projectname = File.ReadString(FileDirectory,"git-repo-name.txt")
+	If File.Exists(FileDirectory,&quot;git-repo-name.txt&quot;) Then
+		projectname = File.ReadString(FileDirectory,&quot;git-repo-name.txt&quot;)
 		Return projectname
 	End If
 	
-	Return ""
+	Return &quot;&quot;
 End Sub
 
 Sub LogChange(FileName As String, FileDirectory As String, ChangeType As String) As Boolean
-	If ignore_folders.IndexOf(FileName) > -1 Then Return False
+	If ignore_folders.IndexOf(FileName) &gt; -1 Then Return False
 	
-	If ignore_files.IndexOf(FileName) > -1 Then Return False
+	If ignore_files.IndexOf(FileName) &gt; -1 Then Return False
 	
-	If GetFileExt(FileName) = "" Then
-		'Its a folder so ignore
+	If GetFileExt(FileName) = &quot;&quot; Then
+		&#39;Its a folder so ignore
 		Return False
 	End If
 	
-	If ignore_ext.IndexOf(GetFileExt(FileName)) > -1 Then Return False
+	If ignore_ext.IndexOf(GetFileExt(FileName)) &gt; -1 Then Return False
 		
-	Log(ChangeType & ": " & FileDirectory & "\" & FileName)
+	Log(ChangeType &amp; &quot;: &quot; &amp; FileDirectory &amp; &quot;\&quot; &amp; FileName)
 		
-	DB.ExecNonQuery2("REPLACE into Changes (FileName,FileDirectory,ChangeType,TimeStamp) values (?,?,?,?)",Array As Object(FileName,FileDirectory,ChangeType,DateTime.Now))
+	DB.ExecNonQuery2(&quot;REPLACE into Changes (FileName,FileDirectory,ChangeType,TimeStamp) values (?,?,?,?)&quot;,Array As Object(FileName,FileDirectory,ChangeType,DateTime.Now))
 	
-	icon1.ToolTip = "Changes in queue: " & GetChangeCount
+	icon1.ToolTip = &quot;Changes in queue: &quot; &amp; GetChangeCount
 	
 	Return True
 End Sub
 
 Sub PushChanges()
 	Dim SearchQuery As String
-	SearchQuery = "select * from Changes order by FileDirectory,FileName,Timestamp"
+	SearchQuery = &quot;select * from Changes order by FileDirectory,FileName,Timestamp&quot;
 		
 	Dim Cursor1 As ResultSet
 	Cursor1 = DB.ExecQuery(SearchQuery)
 	
-	'Dim auth_token As String = File.ReadString(File.DirApp,"auth_token.txt")
-	'Dim repo_parent As String = File.ReadString(File.DirApp,"repo_parent_org_or_name.txt")
+	&#39;Dim auth_token As String = File.ReadString(File.DirApp,&quot;auth_token.txt&quot;)
+	&#39;Dim repo_parent As String = File.ReadString(File.DirApp,&quot;repo_parent_org_or_name.txt&quot;)
 	
 	Dim hub As githubapi
 	hub.Initialize2(api_token)
 	
 	If hub.isCredentialValid = False Then
 		Dim jo As JavaObject = icon1
-		jo.RunMethod("displayMessage",Array As Object("Error", "Could not log into GitHub using auth token!", "ERROR"))
+		jo.RunMethod(&quot;displayMessage&quot;,Array As Object(&quot;Error&quot;, &quot;Could not log into GitHub using auth token!&quot;, &quot;ERROR&quot;))
 		Return 
 	End If
 	
 	Do While Cursor1.NextRow
 		Try
-			Dim FileName As String = Cursor1.GetString("FileName")
-			Dim FileDirectory As String = Cursor1.GetString("FileDirectory")
-			Dim ChangeType As String = Cursor1.GetString("ChangeType")
+			Dim FileName As String = Cursor1.GetString(&quot;FileName&quot;)
+			Dim FileDirectory As String = Cursor1.GetString(&quot;FileDirectory&quot;)
+			Dim ChangeType As String = Cursor1.GetString(&quot;ChangeType&quot;)
 			
-			Dim SafeFileName As String = FileName.Replace(" ","%20")
+			Dim SafeFileName As String = FileName.Replace(&quot; &quot;,&quot;%20&quot;)
 					
 			Dim ProjectName As String = GetProjectName(FileDirectory)
 			
-			Log("-----------------------")
+			Log(&quot;-----------------------&quot;)
 			Log(FileName)
 			Log(SafeFileName)
 			Log(ProjectName)
@@ -225,60 +225,65 @@ Sub PushChanges()
 			Dim repo As GHRepository
 			repo.Initialize
 
-			repo = hub.getRepository(user_or_org_name & "/" & ProjectName)
+			repo = hub.getRepository(user_or_org_name &amp; &quot;/&quot; &amp; ProjectName)
 			
-			' If the repo isnt initialised then create it
+			&#39; If the repo isnt initialised then create it
 			If repo.IsInitialized = False Then
-				repo = hub.createRepository(ProjectName,"","",False)
+				repo = hub.createRepository(ProjectName,&quot;&quot;,&quot;&quot;,False)
 			End If
 			
 			If repo.IsInitialized = True Then									
-				'Try and get the file			
+				&#39;Try and get the file			
 				Dim c As GHContent
 				c = repo.getFileContent(SafeFileName)
 				
 				If c.IsInitialized = False Then
-					'File doesnt exist
-					If ChangeType <> "DELETE" Then
-						Log("Creating GITHUB "&FileName)
+					&#39;File doesnt exist
+					If ChangeType &lt;&gt; &quot;DELETE&quot; Then
+						Log(&quot;Creating GITHUB &quot;&amp;FileName)
 						If File.Exists(FileDirectory,FileName) = False Then
-							Log("File doesnt exist on file system?")
+							Log(&quot;File doesnt exist on file system?&quot;)
 						Else
-							'Could be a create or update but file doesnt exist so creating anyway
-							repo.createContent(File.ReadString(FileDirectory,FileName),"Initial Commit",SafeFileName)
+							&#39;Could be a create or update but file doesnt exist so creating anyway
+							
+							Dim SafeFileContent As String = $&quot;$xml{File.ReadString(FileDirectory,FileName)}&quot;$
+							
+							repo.createContent(SafeFileContent,&quot;Initial Commit&quot;,SafeFileName)
 						End If
 					Else
-						'Well file doesnt exist on GitHub so ignoring
-						Log("Ignoring delete as file doesnt exist")
+						&#39;Well file doesnt exist on GitHub so ignoring
+						Log(&quot;Ignoring delete as file doesnt exist&quot;)
 					End If
 				Else
-					'File exists
-					If ChangeType = "DELETE" Then
-						Log("Deleting GITHUB "&FileName)
-						c.delete("Deleted")
+					&#39;File exists
+					If ChangeType = &quot;DELETE&quot; Then
+						Log(&quot;Deleting GITHUB &quot;&amp;FileName)
+						c.delete(&quot;Deleted&quot;)
 					Else
-						Log("Updating GITHUB "&FileName)
+						Log(&quot;Updating GITHUB &quot;&amp;FileName)
 						If File.Exists(FileDirectory,FileName) = False Then
-							Log("File doesnt exist on file system?")
+							Log(&quot;File doesnt exist on file system?&quot;)
 						Else
-							c.update(File.ReadString(FileDirectory,FileName),"Update")
+							Dim SafeFileContent As String = $&quot;$xml{File.ReadString(FileDirectory,FileName)}&quot;$
+							Log(SafeFileContent)						
+							c.update(SafeFileContent,&quot;Update&quot;)
 						End If
 					End If
 				End If
 			End If
 
 		Catch
-			Log("Error occured with file " & FileName)
+			Log(&quot;Error occured with file &quot; &amp; FileName)
 		End Try
 	Loop
 	
 	Cursor1.Close
 	
-	DB.ExecNonQuery("delete from Changes")
+	DB.ExecNonQuery(&quot;delete from Changes&quot;)
 	
-	icon1.ToolTip = "Changes in queue: " & GetChangeCount
+	icon1.ToolTip = &quot;Changes in queue: &quot; &amp; GetChangeCount
 	
 	Dim jo As JavaObject = icon1
-	jo.RunMethod("displayMessage",Array As Object("Success", "Changes pushed successfully", "NONE"))
+	jo.RunMethod(&quot;displayMessage&quot;,Array As Object(&quot;Success&quot;, &quot;Changes pushed successfully&quot;, &quot;NONE&quot;))
 	Return
 End Sub
