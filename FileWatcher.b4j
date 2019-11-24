@@ -11,9 +11,8 @@ Library5=jfx
 Library6=githubapi
 Library7=javaobject
 Library8=json
-Library9=jutilities
 NumberOfFiles=1
-NumberOfLibraries=9
+NumberOfLibraries=8
 NumberOfModules=0
 Version=7.98
 @EndOfDesignText@
@@ -250,10 +249,8 @@ Sub PushChanges()
 						If File.Exists(FileDirectory,FileName) = False Then
 							Log(&quot;File doesnt exist on file system?&quot;)
 						Else
-							&#39;Could be a create or update but file doesnt exist so creating anyway
-							
-							Dim SafeFileContent As String = $&quot;$xml{File.ReadString(FileDirectory,FileName)}&quot;$
-							
+							&#39;Could be a create or update but file doesnt exist so creating anyway							
+							Dim SafeFileContent As String = $&quot;$xml{File.ReadString(FileDirectory,FileName)}&quot;$							
 							repo.createContent(SafeFileContent,&quot;Initial Commit&quot;,SafeFileName)
 						End If
 					Else
@@ -270,19 +267,12 @@ Sub PushChanges()
 						If File.Exists(FileDirectory,FileName) = False Then
 							Log(&quot;File doesnt exist on file system?&quot;)
 						Else
-							Log(c.Name)
-							Log(c.Sha)
-							Log(c.Size)
-							
-							Dim SafeFileContent As String = $&quot;$xml{File.ReadString(FileDirectory,FileName)}&quot;$	
-							
-							c.update(SafeFileContent,&quot;Update&quot;)
-							
+							Dim SafeFileContent As String = $&quot;$xml{File.ReadString(FileDirectory,FileName)}&quot;$							
+							c.update(SafeFileContent,&quot;Update&quot;)							
 						End If
 					End If
 				End If
 			End If
-
 		Catch
 			Log(&quot;Error occured with file &quot; &amp; FileName)
 		End Try
