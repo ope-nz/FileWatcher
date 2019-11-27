@@ -1,4 +1,4 @@
-﻿AppType=JavaFX
+?AppType=JavaFX
 Build1=Default,nz.op.filewatcher
 File1=favicon.png
 FileGroup1=Default Group
@@ -46,17 +46,9 @@ Sub Process_Globals
 	Private tray As SystemTray
 	Private icon1 As TrayIcon
 	Private LogoImage As Image
-	
-	&#39;Dim j As jUtilities
 End Sub
 
 Sub AppStart (Form1 As Form, Args() As String)
-	&#39;SetSystemProperty(&quot;http.proxyHost&quot;, &quot;127.0.0.1&quot;)
-	&#39;SetSystemProperty(&quot;http.proxyPort&quot;, 8888 )
-	&#39;SetSystemProperty(&quot;https.proxyHost&quot;, &quot;127.0.0.1&quot;)
-	&#39;SetSystemProperty(&quot;https.proxyPort&quot;, 8888 )
-	&#39;SetSystemProperty(&quot;java.net.useSystemProxies&quot;, &quot;True&quot;)
-	
 	LogoImage = fx.LoadImage(File.DirAssets, &quot;favicon.png&quot;)
 	
 	DB.InitializeSQLite(File.DirApp,&quot;ChangeLog.sqlite&quot;,True)
@@ -210,9 +202,6 @@ Sub PushChanges()
 		
 	Dim Cursor1 As ResultSet
 	Cursor1 = DB.ExecQuery(SearchQuery)
-	
-	&#39;Dim auth_token As String = File.ReadString(File.DirApp,&quot;auth_token.txt&quot;)
-	&#39;Dim repo_parent As String = File.ReadString(File.DirApp,&quot;repo_parent_org_or_name.txt&quot;)
 	
 	Dim hub As githubapi
 	hub.Initialize2(api_token)
