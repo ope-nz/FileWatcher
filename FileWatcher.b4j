@@ -301,6 +301,6 @@ Sub PushChanges()
 	icon1.ToolTip = &quot;Changes in queue: &quot; &amp; GetChangeCount
 	
 	Dim jo As JavaObject = icon1
-	jo.RunMethod(&quot;displayMessage&quot;,Array As Object(&quot;Success&quot;, &quot;Changes pushed successfully&quot;&amp;CRLF&amp;$&quot;New:{Count_new} Updates:{Count_upd}&quot;$, &quot;NONE&quot;))
+	jo.RunMethod(&quot;displayMessage&quot;,Array As Object(&quot;Success&quot;, &quot;Changes pushed successfully&quot; &amp; CRLF &amp; $&quot;New:${Count_new} Updates:${Count_upd} Deleted:${Count_del} Ignored:${Count_ign}&quot;$, &quot;NONE&quot;))
 	Return
 End Sub
