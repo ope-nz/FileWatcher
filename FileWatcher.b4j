@@ -14,7 +14,7 @@ Library8=json
 NumberOfFiles=1
 NumberOfLibraries=8
 NumberOfModules=0
-Version=7.98
+Version=8
 @EndOfDesignText@
 &#39;Non-UI application (console / server application)
 #Region Project Attributes 
@@ -194,6 +194,17 @@ Sub LogChange(FileName As String, FileDirectory As String, ChangeType As String)
 End Sub
 
 Sub PushChanges()
+	If GetChangeCount = 0 Then
+		Dim jo As JavaObject = icon1
+		jo.RunMethod(&quot;displayMessage&quot;,Array As Object(&quot;Success&quot;, &quot;No changes to push&quot;, &quot;NONE&quot;))
+		Return
+	End If
+	
+	Dim Count_new As Int = 0
+	Dim Count_upd As Int = 0
+	Dim Count_del As Int = 0
+	Dim Count_ign As Int = 0
+	
 	Dim SearchQuery As String
 	SearchQuery = &quot;select * from Changes order by FileDirectory,FileName,Timestamp&quot;
 		
@@ -218,7 +229,7 @@ Sub PushChanges()
 			Dim FileDirectory As String = Cursor1.GetString(&quot;FileDirectory&quot;)
 			Dim ChangeType As String = Cursor1.GetString(&quot;ChangeType&quot;)
 			
-			Dim SafeFileName As String = FileName.Replace(&quot; &quot;,&quot;%20&quot;)
+			Dim SafeFileName As String = FileName &#39;.Replace(&quot; &quot;,&quot;%20&quot;)
 					
 			Dim ProjectName As String = GetProjectName(FileDirectory)
 			
@@ -252,23 +263,28 @@ Sub PushChanges()
 							&#39;Could be a create or update but file doesnt exist so creating anyway							
 							Dim SafeFileContent As String = $&quot;$xml{File.ReadString(FileDirectory,FileName)}&quot;$							
 							repo.createContent(SafeFileContent,&quot;Initial Commit&quot;,SafeFileName)
+							Count_new = Count_new + 1
 						End If
 					Else
 						&#39;Well file doesnt exist on GitHub so ignoring
 						Log(&quot;Ignoring delete as file doesnt exist&quot;)
+						Count_ign = Count_ign + 1
 					End If
 				Else
 					&#39;File exists
 					If ChangeType = &quot;DELETE&quot; Then
 						Log(&quot;Deleting GITHUB &quot;&amp;FileName)
 						c.delete(&quot;Deleted&quot;)
+						Count_del = Count_del + 1
 					Else
 						Log(&quot;Updating GITHUB &quot;&amp;FileName)
 						If File.Exists(FileDirectory,FileName) = False Then
 							Log(&quot;File doesnt exist on file system?&quot;)
+							Count_ign = Count_ign + 1
 						Else
 							Dim SafeFileContent As String = $&quot;$xml{File.ReadString(FileDirectory,FileName)}&quot;$							
-							c.update(SafeFileContent,&quot;Update&quot;)							
+							c.update(SafeFileContent,&quot;Update&quot;)
+							Count_upd = Count_upd + 1
 						End If
 					End If
 				End If
@@ -285,6 +301,6 @@ Sub PushChanges()
 	icon1.ToolTip = &quot;Changes in queue: &quot; &amp; GetChangeCount
 	
 	Dim jo As JavaObject = icon1
-	jo.RunMethod(&quot;displayMessage&quot;,Array As Object(&quot;Success&quot;, &quot;Changes pushed successfully&quot;, &quot;NONE&quot;))
+	jo.RunMethod(&quot;displayMessage&quot;,Array As Object(&quot;Success&quot;, &quot;Changes pushed successfully&quot;&amp;CRLF&amp;$&quot;New:{Count_new} Updates:{Count_upd}&quot;$, &quot;NONE&quot;))
 	Return
 End Sub
