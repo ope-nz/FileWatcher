@@ -14,7 +14,7 @@ Library8=json
 NumberOfFiles=1
 NumberOfLibraries=8
 NumberOfModules=0
-Version=8
+Version=8.1
 @EndOfDesignText@
 &#39;Non-UI application (console / server application)
 #Region Project Attributes 
@@ -139,9 +139,23 @@ End Sub
 Sub GetProjectName(FileDirectory As String) As String
 	Dim l As List = File.ListFiles(FileDirectory)
 	
+	If File.Exists(FileDirectory,&quot;git-repo-name.txt&quot;) Then
+		projectname = File.ReadString(FileDirectory,&quot;git-repo-name.txt&quot;)
+		Return projectname
+	End If
+	
 	For Each fl As String In l
 		If fl.EndsWith(&quot;.b4j&quot;) Then			
 			Return fl.Replace(&quot;.b4j&quot;,&quot;&quot;)
+		End If
+		If fl.EndsWith(&quot;.b4a&quot;) Then
+			Return fl.Replace(&quot;.b4a&quot;,&quot;&quot;)
+		End If
+		If fl.EndsWith(&quot;.b4r&quot;) Then
+			Return fl.Replace(&quot;.b4r&quot;,&quot;&quot;)
+		End If
+		If fl.EndsWith(&quot;.b4i&quot;) Then
+			Return fl.Replace(&quot;.b4i&quot;,&quot;&quot;)
 		End If
 	Next
 	
@@ -154,12 +168,7 @@ Sub GetProjectName(FileDirectory As String) As String
 		projectname = projectname.SubString(i2)
 		
 		Return projectname
-	End If
-	
-	If File.Exists(FileDirectory,&quot;git-repo-name.txt&quot;) Then
-		projectname = File.ReadString(FileDirectory,&quot;git-repo-name.txt&quot;)
-		Return projectname
-	End If
+	End If	
 	
 	Return &quot;&quot;
 End Sub
