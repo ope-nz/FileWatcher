@@ -96,6 +96,7 @@ Sub AppStart (Form1 As Form, Args() As String)
 	tray.AddTrayIcon(icon1)
 End Sub
 
+&#39; Right click the tray
 Sub Icon1_MenuClick (Text As String)
 	Select Text
 		Case &quot;Push Changes&quot;
@@ -106,36 +107,47 @@ Sub Icon1_MenuClick (Text As String)
 	End Select
 End Sub
 
+&#39; File Watcher detected a MODIFY
 Sub fw_ModificationDetected(FileName As String, FileDirectory As String)
+	#if DEBUG
 	Log(FileName)
 	Log(FileDirectory)
+	#End If
 	LogChange(FileName,FileDirectory,&quot;MODIFY&quot;)
 End Sub
 
+&#39; File Watcher detected a CREATE
 Sub fw_CreationDetected(FileName As String, FileDirectory As String)
+	#if DEBUG
 	Log(FileName)
 	Log(FileDirectory)
+	#End If
 	LogChange(FileName,FileDirectory,&quot;CREATE&quot;)
 End Sub
 
+&#39; File Watcher detected a DELETE
 Sub fw_DeletionDetected(FileName As String, FileDirectory As String)
+	#if DEBUG
 	Log(FileName)
 	Log(FileDirectory)
+	#End If
 	LogChange(FileName,FileDirectory,&quot;DELETE&quot;)
 End Sub
 
+&#39; Determine the file extension
 Sub GetFileExt(FileName As String) As String
 	Dim idx As Int = FileName.LastIndexof(&quot;.&quot;)	
 	If idx = -1 Then Return &quot;&quot;	
 	Return(FileName.SubString2(idx, FileName.Length))
 End Sub
 
+&#39; Get the number of changes
 Sub GetChangeCount() As Int
-	Dim result As Int = DB.ExecQuerySingleResult(&quot;select count(*) from Changes&quot;)
-	
+	Dim result As Int = DB.ExecQuerySingleResult(&quot;select count(*) from Changes&quot;)	
 	Return result
 End Sub
 
+&#39; Work out the project name (override takes preference)
 Sub GetProjectName(FileDirectory As String) As String
 	Dim l As List = File.ListFiles(FileDirectory)
 	
@@ -173,6 +185,7 @@ Sub GetProjectName(FileDirectory As String) As String
 	Return &quot;&quot;
 End Sub
 
+&#39; Log the change to the database
 Sub LogChange(FileName As String, FileDirectory As String, ChangeType As String) As Boolean
 	If ignore_folders.IndexOf(FileName) &gt; -1 Then Return False
 	
@@ -184,8 +197,10 @@ Sub LogChange(FileName As String, FileDirectory As String, ChangeType As String)
 	End If
 	
 	If ignore_ext.IndexOf(GetFileExt(FileName)) &gt; -1 Then Return False
-		
+	
+	#if DEBUG
 	Log(ChangeType &amp; &quot;: &quot; &amp; FileDirectory &amp; &quot;\&quot; &amp; FileName)
+	#End If	
 		
 	DB.ExecNonQuery2(&quot;REPLACE into Changes (FileName,FileDirectory,ChangeType,TimeStamp) values (?,?,?,?)&quot;,Array As Object(FileName,FileDirectory,ChangeType,DateTime.Now))
 	
@@ -194,6 +209,7 @@ Sub LogChange(FileName As String, FileDirectory As String, ChangeType As String)
 	Return True
 End Sub
 
+&#39; Push changes up to GitHub
 Sub PushChanges()
 	If GetChangeCount = 0 Then
 		Dim jo As JavaObject = icon1
@@ -227,14 +243,23 @@ Sub PushChanges()
 			Dim FileDirectory As String = Cursor1.GetString(&quot;FileDirectory&quot;)
 			Dim ChangeType As String = Cursor1.GetString(&quot;ChangeType&quot;)
 			
-			Dim SafeFileName As String = FileName &#39;.Replace(&quot; &quot;,&quot;%20&quot;)
+			Dim SafeFileName As String = FileName
 					
 			Dim ProjectName As String = GetProjectName(FileDirectory)
 			
+			If ProjectName = &quot;&quot; Then
+				Log(&quot;Failed to determine project name&quot;)
+				Dim jo As JavaObject = icon1
+				jo.RunMethod(&quot;displayMessage&quot;,Array As Object(&quot;Error&quot;, $&quot;Could not determine project name for file ${FileName} in ${FileDirectory}&quot;$, &quot;ERROR&quot;))
+				Return
+			End If
+			
+			#if DEBUG
 			Log(&quot;-----------------------&quot;)
 			Log(FileName)
 			Log(SafeFileName)
 			Log(ProjectName)
+			#End If			
 			
 			Dim repo As GHRepository
 			repo.Initialize
