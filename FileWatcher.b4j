@@ -24,6 +24,8 @@ Version=8.5
 	
 	'#VirtualMachineArgs: -DproxySet=true -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=8888 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=8888
 	
+	'Copy: ide://run?File=%B4X%\Tools\CopyTo\run.bat&Args=C:\Apps\FileWatcher	
+	
 	#if RELEASE		
 		#CustomBuildAction: 2, C:\Apps\B4J\Tools\CompileOnly\compileonly.bat,		
 	#end if	
@@ -284,7 +286,8 @@ Sub PushChanges()
 							Log("File doesnt exist on file system?")
 						Else
 							'Could be a create or update but file doesnt exist so creating anyway							
-							Dim SafeFileContent As String = $"$xml{File.ReadString(FileDirectory,FileName)}"$							
+							'Dim SafeFileContent As String = $"$xml{File.ReadString(FileDirectory,FileName)}"$							
+							Dim SafeFileContent As String = File.ReadString(FileDirectory,FileName)
 							repo.createContent(SafeFileContent,"Initial Commit",SafeFileName)
 							Count_new = Count_new + 1
 						End If
