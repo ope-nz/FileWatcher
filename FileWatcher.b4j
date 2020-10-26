@@ -20,7 +20,7 @@ Version=8.5
 #Region Project Attributes 
 	#CommandLineArgs:
 	#MergeLibraries: True
-	#AdditionalJar: sqlite-jdbc-3.27.2.1
+	#AdditionalJar: sqlite-jdbc-3.32.3.2_min
 	
 	'#VirtualMachineArgs: -DproxySet=true -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=8888 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=8888
 	
@@ -254,6 +254,14 @@ Sub PushChanges()
 				Dim jo As JavaObject = icon1
 				jo.RunMethod("displayMessage",Array As Object("Error", $"Could not determine project name for file ${FileName} in ${FileDirectory}"$, "ERROR"))
 				Return
+			End If
+			
+			Dim Folder As String = ""
+			
+			If ProjectName.Contains("/") Then
+				Folder = ProjectName.SubString(ProjectName.IndexOf("/")+1)
+				ProjectName = ProjectName.SubString2(0,ProjectName.IndexOf("/"))				
+				SafeFileName = Folder & "/" & SafeFileName				
 			End If
 			
 			#if DEBUG
