@@ -14,7 +14,7 @@ Library8=json
 NumberOfFiles=1
 NumberOfLibraries=8
 NumberOfModules=0
-Version=8.5
+Version=9.3
 @EndOfDesignText@
 'Non-UI application (console / server application)
 #Region Project Attributes 
